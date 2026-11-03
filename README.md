@@ -11,13 +11,18 @@ diff preview first, never touching your files without `--apply`.
 
 ## Install
 
+npm is not published yet — install from source (Node.js 20+):
+
 ```bash
-npm install -g picoexit        # or: npx picoexit audit .
-picoexit audit ./my-site       # scan a project
-picoexit plan ./my-site        # get the 3-path exit plan
+git clone https://github.com/techdevfun/picoexit.git
+cd picoexit
+npm install        # dev dependencies only (build/test); zero runtime dependencies
+npm run build
+node dist/index.js audit ./my-site   # scan a project
+node dist/index.js plan ./my-site    # get the 3-path exit plan
 ```
 
-Requires Node.js 20+. Zero runtime dependencies. 100% local — your code never leaves your machine.
+Zero runtime dependencies. 100% local — your code never leaves your machine.
 
 ## Quick example
 
@@ -102,6 +107,7 @@ prices the way out.
 
 ## Roadmap
 
+- Publish to the npm registry (pending owner token — install from source until then)
 - GitHub Action wrapper (`picoexit audit` as a CI gate)
 - More codemod targets (UnoCSS, plain cascade layers)
 - Fork-tracking: re-check known community forks and report activity
