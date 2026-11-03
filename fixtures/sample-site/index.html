@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Acme Widgets — built with Pico</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2.1.1/css/pico.min.css" />
+</head>
+<body>
+  <header class="container">
+    <nav>
+      <ul>
+        <li><strong>Acme Widgets</strong></li>
+      </ul>
+      <ul>
+        <li><a href="#" aria-current="page">Home</a></li>
+        <li><a href="#">Pricing</a></li>
+        <li>
+          <details class="dropdown">
+            <summary>Account</summary>
+            <ul>
+              <li><a href="#">Profile</a></li>
+              <li><a href="#">Sign out</a></li>
+            </ul>
+          </details>
+        </li>
+      </ul>
+    </nav>
+    <form role="search">
+      <input type="search" name="q" placeholder="Search widgets" aria-label="Search" />
+      <input type="submit" value="Search" />
+    </form>
+  </header>
+
+  <main class="container">
+    <h1>Widgets that just work</h1>
+    <p>Our catalog, rendered with semantic HTML and Pico CSS.</p>
+
+    <div class="grid">
+      <article>
+        <h2>Widget A</h2>
+        <p>Small description with <mark>highlighted</mark> text.</p>
+        <button class="contrast">Buy now</button>
+      </article>
+      <article>
+        <h2>Widget B</h2>
+        <p>Another widget. Press <kbd>Ctrl</kbd> + <kbd>K</kbd> to search.</p>
+        <button class="secondary">Details</button>
+      </article>
+      <article>
+        <h2>Widget C</h2>
+        <p>Third widget in the grid.</p>
+        <button class="outline">Details</button>
+      </article>
+    </div>
+
+    <h2>Order form</h2>
+    <form>
+      <fieldset>
+        <legend>Shipping</legend>
+        <label>
+          Full name
+          <input type="text" name="name" placeholder="Ada Lovelace" aria-invalid="false" />
+        </label>
+        <label>
+          Country
+          <select name="country">
+            <option>Vietnam</option>
+            <option>Germany</option>
+          </select>
+        </label>
+        <label>
+          Notes
+          <textarea name="notes" placeholder="Leave a note"></textarea>
+        </label>
+        <label>
+          <input type="checkbox" role="switch" name="newsletter" checked />
+          Email me new widgets
+        </label>
+      </fieldset>
+      <div role="group">
+        <input type="text" name="coupon" placeholder="Coupon code" />
+        <button type="submit">Apply</button>
+      </div>
+    </form>
+
+    <h2>Stock</h2>
+    <div class="overflow-auto">
+      <table class="striped">
+        <thead>
+          <tr><th scope="col">Widget</th><th scope="col">Price</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Widget A</td><td>$9</td></tr>
+          <tr><td>Widget B</td><td>$19</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>Fulfillment progress: <progress value="70" max="100">70%</progress></p>
+
+    <details>
+      <summary>Shipping policy</summary>
+      <p>We ship worldwide within 5 business days.</p>
+    </details>
+
+    <p><a href="#" role="button" data-tooltip="Opens the demo modal">Open demo</a></p>
+  </main>
+
+  <dialog id="demo-modal">
+    <article>
+      <header>
+        <button class="close" aria-label="Close" rel="prev"></button>
+        <h2>Demo modal</h2>
+      </header>
+      <p>This modal uses Pico's dialog pattern.</p>
+    </article>
+  </dialog>
+
+  <footer class="container">
+    <small>Built with Pico CSS v2.1.1 · <a href="#">Terms</a></small>
+  </footer>
+</body>
+</html>

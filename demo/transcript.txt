@@ -1,0 +1,114 @@
+$ node dist/src/cli.js audit fixtures/sample-site
+# picoexit audit
+- Project: `/home/hatch/workspace/github-repo-factory/picoexit-build/fixtures/sample-site`
+- Pico delivery: **cdn** (v2.1.1)
+- Files scanned: 1
+- Pico selectors used: **45 distinct**, 85 occurrences
+## Drift-risk selectors
+- **.dropdown** (high risk): Positioning and hover styles use :has() (li:has(label):hover); no maintainer to adapt if browsers change details/summary behavior.
+  - index.html:19
+- **role=group** (high risk): Pico styles [role=group] focus behavior with :has() selectors (8 occurrences); core behavior, not just decoration.
+  - index.html:81
+- **role=search** (high risk): Pico styles [role=search] focus behavior with :has() selectors; core behavior, not just decoration.
+  - index.html:29
+- **.close** (medium risk): Tied to Pico's modal JS pattern (body.modal-is-* classes).
+  - index.html:112
+- **data-theme** (medium risk): Interacts with prefers-color-scheme (one media query in Pico); OS/browser color-scheme behavior may drift.
+  - index.html:2
+- **dialog** (medium risk): Pico's modal pattern couples <dialog> with body.modal-is-* classes and its own JS; the native dialog API is stable but the integration is frozen.
+  - index.html:109
+- **label** (medium risk): Pico uses label:has([type=checkbox],[type=radio]) for control layout; older browsers without :has() lose that layout.
+  - index.html:61, index.html:65, index.html:72, index.html:76
+## Usage by component
+- typography: 23
+- components: 22
+- forms: 19
+- layout: 9
+- buttons: 9
+- navigation: 2
+- theming: 1
+## Selectors
+| Selector | Component | Uses | Drift risk | Locations |
+|---|---|---|---|---|
+| `p` | typography | 8 | low | index.html:37, index.html:42, index.html:47, index.html:52, index.html:99, index.html:103, index.html:106, index.html:115 |
+| `a` | typography | 6 | low | index.html:16, index.html:17, index.html:22, index.html:23, index.html:106, index.html:120 |
+| `h2` | typography | 6 | low | index.html:41, index.html:46, index.html:51, index.html:57, index.html:87, index.html:113 |
+| `button` | buttons | 5 | low | index.html:43, index.html:48, index.html:53, index.html:83, index.html:112 |
+| `input` | forms | 5 | low | index.html:30, index.html:31, index.html:63, index.html:77, index.html:82 |
+| `article` | components | 4 | low | index.html:40, index.html:45, index.html:50, index.html:110 |
+| `label` | forms | 4 | medium | index.html:61, index.html:65, index.html:72, index.html:76 |
+| `.container` | layout | 3 | low | index.html:10, index.html:35, index.html:119 |
+| `ul` | components | 3 | low | index.html:12, index.html:15, index.html:21 |
+| `details` | components | 2 | low | index.html:19, index.html:101 |
+| `form` | forms | 2 | low | index.html:29, index.html:58 |
+| `header` | layout | 2 | low | index.html:10, index.html:111 |
+| `summary` | components | 2 | low | index.html:20, index.html:102 |
+| `td` | components | 2 | low | index.html:94, index.html:95 |
+| `.close` | components | 1 | medium | index.html:112 |
+| `.contrast` | buttons | 1 | low | index.html:43 |
+| `.dropdown` | components | 1 | high | index.html:19 |
+| `.grid` | layout | 1 | low | index.html:39 |
+| `.outline` | buttons | 1 | low | index.html:53 |
+| `.overflow-auto` | layout | 1 | low | index.html:88 |
+| `.secondary` | buttons | 1 | low | index.html:48 |
+| `.striped` | components | 1 | low | index.html:89 |
+| `aria-current` | navigation | 1 | low | index.html:16 |
+| `aria-invalid` | forms | 1 | low | index.html:63 |
+| `data-theme` | theming | 1 | medium | index.html:2 |
+| `data-tooltip` | components | 1 | low | index.html:106 |
+| `dialog` | components | 1 | medium | index.html:109 |
+| `fieldset` | forms | 1 | low | index.html:59 |
+| `footer` | layout | 1 | low | index.html:119 |
+| `h1` | typography | 1 | low | index.html:36 |
+| `kbd` | typography | 1 | low | index.html:47 |
+| `legend` | forms | 1 | low | index.html:60 |
+| `main` | layout | 1 | low | index.html:35 |
+| `mark` | typography | 1 | low | index.html:42 |
+| `nav` | navigation | 1 | low | index.html:11 |
+| `progress` | components | 1 | low | index.html:99 |
+| `role=button` | buttons | 1 | low | index.html:106 |
+| `role=group` | forms | 1 | high | index.html:81 |
+| `role=search` | forms | 1 | high | index.html:29 |
+| `role=switch` | forms | 1 | low | index.html:77 |
+| `select` | forms | 1 | low | index.html:67 |
+| `table` | components | 1 | low | index.html:89 |
+| `textarea` | forms | 1 | low | index.html:74 |
+| `th` | components | 1 | low | index.html:91 |
+| `thead` | components | 1 | low | index.html:90 |
+Exit code: 1 (high drift-risk selectors in use)
+$ echo "exit code: $?"
+exit code: 1
+$ node dist/src/cli.js migrate fixtures/sample-site --to tailwind --dry-run | head -32
+# picoexit migrate --to tailwind --dry-run
+Files scanned: 1; files changed: 1
+--- index.html
++++ index.html
+@@ line 10 @@
+- <header class="container">
++ <header class="mx-auto w-full max-w-7xl px-4">
+@@ line 11 @@
+- <nav>
++ <nav class="flex items-center justify-between gap-4">
+@@ line 19 @@
+- <details class="dropdown">
++ <details class="dropdown border border-zinc-200 rounded-lg px-4 py-2">
+@@ line 20 @@
+- <summary>Account</summary>
++ <summary class="cursor-pointer font-medium">Account</summary>
+@@ line 30 @@
+- <input type="search" name="q" placeholder="Search widgets" aria-label="Search" />
++ <input type="search" name="q" placeholder="Search widgets" aria-label="Search"  class="w-full rounded-md border border-zinc-300 px-3 py-2"/>
+@@ line 31 @@
+- <input type="submit" value="Search" />
++ <input type="submit" value="Search"  class="rounded-md bg-blue-600 px-4 py-2 font-medium text-white hover:bg-blue-700"/>
+@@ line 35 @@
+- <main class="container">
++ <main class="mx-auto w-full max-w-7xl px-4">
+@@ line 36 @@
+- <h1>Widgets that just work</h1>
++ <h1 class="text-4xl font-bold">Widgets that just work</h1>
+@@ line 39 @@
+- <div class="grid">
+$ exit
+exit
+Script done on 2026-11-03 07:23:54+00:00 [COMMAND_EXIT_CODE="0"]
