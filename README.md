@@ -18,8 +18,8 @@ git clone https://github.com/techdevfun/picoexit.git
 cd picoexit
 npm install        # dev dependencies only (build/test); zero runtime dependencies
 npm run build
-node dist/index.js audit ./my-site   # scan a project
-node dist/index.js plan ./my-site    # get the 3-path exit plan
+node dist/src/cli.js audit ./my-site   # scan a project
+node dist/src/cli.js plan ./my-site    # get the 3-path exit plan
 ```
 
 Zero runtime dependencies. 100% local — your code never leaves your machine.
