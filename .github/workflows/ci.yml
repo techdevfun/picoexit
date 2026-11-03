@@ -21,5 +21,5 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build
-      - run: node --test 'dist/test/**/*.test.js'
+      - run: node --test dist/test/scan.test.js dist/test/audit.test.js dist/test/mappings.test.js dist/test/migrate.test.js dist/test/plan.test.js dist/test/e2e.test.js
       - run: npm run preflight
