@@ -49,6 +49,35 @@ describe("migrateDir", () => {
     assert.ok(!r.manual.some((m) => m.pico === ".grid"));
   });
 
+  it("bulma adds .column to grid children on the same line", () => {
+    const d = tmpSite({
+      "index.html": '<div class="grid"><article>a</article><article>b</article><article>c</article></div>',
+    });
+    migrateDir(d, "bulma", { apply: true });
+    const out = fs.readFileSync(path.join(d, "index.html"), "utf-8");
+    assert.ok(out.includes("columns"), out);
+    // each child gets its own `column` class (plus the element mapping's `box`)
+    assert.equal((out.match(/\bcolumn\b/g) || []).length, 3, out);
+    assert.ok(out.includes('class="box column"') || out.includes('class="column box"'), out);
+  });
+
+  it("bulma grid dry-run preview shows the added .column classes", () => {
+    // plain <div> children have no element mapping, so before the fix the
+    // preview showed only the grid line while --apply still wrote `column`
+    // onto the children — a preview that hid real changes.
+    const html = '<div class="grid">\n  <div>a</div>\n  <div>b</div>\n  <div>c</div>\n</div>';
+    const d = tmpSite({ "index.html": html });
+    const r = migrateDir(d, "bulma", { apply: false });
+    const hunks = r.changes.flatMap((c) => c.hunks);
+    assert.deepEqual(hunks.map((h) => h[0]), [1, 2, 3, 4]);
+    assert.ok(hunks[1][2].includes('class="column"'), hunks[1][2]);
+    assert.ok(hunks[2][2].includes('class="column"'), hunks[2][2]);
+    assert.ok(hunks[3][2].includes('class="column"'), hunks[3][2]);
+    assert.equal(r.changes[0].replacements, 4); // grid + 3 children
+    // and the file itself is untouched by a dry run
+    assert.equal(fs.readFileSync(path.join(d, "index.html"), "utf-8"), html);
+  });
+
   it("bulma maps .contrast to is-dark", () => {
     const d = tmpSite({ "index.html": '<button class="contrast">Buy</button>' });
     migrateDir(d, "bulma", { apply: true });
