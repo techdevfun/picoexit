@@ -94,18 +94,21 @@ function countDirectChildren(html: string, openTagStart: number): number {
   return children;
 }
 
-/** Add a `column` class to every direct child opening tag of the .grid element. Bulma only. */
+/** Add a `column` class to every direct child opening tag of the .grid element. Bulma only.
+ * Returns the line indexes changed and how many `column` classes were added,
+ * so the caller can include them in the diff preview and replacement count. */
 function addBulmaColumns(
   lines: string[],
   gridOpenStart: number,
   fullText: string,
   origLineStarts: number[],
-): void {
+): { changed: number[]; added: number } {
+  const none = { changed: [], added: 0 };
   const openMatch = /^<([a-zA-Z][\w-]*)/.exec(fullText.slice(gridOpenStart));
-  if (!openMatch || gridOpenStart < 0) return;
+  if (!openMatch || gridOpenStart < 0) return none;
   const tag = openMatch[1].toLowerCase();
   const openEnd = fullText.indexOf(">", gridOpenStart);
-  if (openEnd === -1) return;
+  if (openEnd === -1) return none;
   const VOID = new Set([
     "area", "base", "br", "col", "embed", "hr", "img", "input",
     "link", "meta", "param", "source", "track", "wbr",
@@ -152,25 +155,33 @@ function addBulmaColumns(
     if (!byLine.has(li)) byLine.set(li, []);
     byLine.get(li)!.push(c.name);
   }
+  const changed: number[] = [];
+  let added = 0;
   for (const [li, names] of byLine) {
     let line = lines[li];
     const seen = new Map<string, number>();
+    let addedOnLine = 0;
     for (const name of names) {
       const want = seen.get(name) ?? 0;
       const re = new RegExp(`<${name}(?=[\\s>/])[^>]*?>`, "g");
-      let count = 0;
+      // The want-th <name> tag on this line is this child. Tags that
+      // already carry `column` still occupy their ordinal slot — skipping
+      // them without counting shifted the ordinal and dropped a sibling.
+      let ordinal = 0;
       let found: RegExpExecArray | null = null;
       let mm: RegExpExecArray | null;
       while ((mm = re.exec(line)) !== null) {
-        if (/\bcolumn\b/.test(mm[0])) continue;
-        if (count === want) {
-          found = mm;
+        if (ordinal === want) {
+          found = /\bcolumn\b/.test(mm[0]) ? null : mm;
           break;
         }
-        count++;
+        ordinal++;
       }
-      if (!found) continue;
+      // Each child entry consumes its ordinal slot even when its tag
+      // already has `column` (e.g. re-running on migrated markup),
+      // or the next same-name sibling would target the same tag again.
       seen.set(name, want + 1);
+      if (!found) continue;
       const t = found[0];
       const replacement = /\bclass\s*=/.test(t)
         ? t.replace(
@@ -182,9 +193,15 @@ function addBulmaColumns(
           ? t.replace(/\/>$/, ' class="column"/>')
           : t.replace(/>$/, ' class="column">');
       line = line.slice(0, found.index) + replacement + line.slice(found.index + t.length);
+      addedOnLine += 1;
     }
-    if (line !== lines[li]) lines[li] = line;
+    if (line !== lines[li]) {
+      lines[li] = line;
+      changed.push(li);
+      added += addedOnLine;
+    }
   }
+  return { changed, added };
 }
 
 export function migrateDir(
@@ -225,6 +242,11 @@ export function migrateDir(
     }
     let replacements = 0;
     const changedLines = new Set<number>();
+    // Bulma .grid children are handled AFTER the per-line loop (see below):
+    // addBulmaColumns mutates `lines` directly, so calling it mid-loop both
+    // lost same-line children (the loop's `lines[idx] = out` overwrote them)
+    // and left multi-line children out of the diff preview.
+    const bulmaGridJobs: number[] = [];
 
     lines.forEach((line, idx) => {
       const lineNo = idx + 1;
@@ -342,7 +364,7 @@ export function migrateDir(
             next.push("columns");
             const attrAbs = origLineStarts[idx] + am.index;
             const gridOpenStart = original.lastIndexOf("<", attrAbs);
-            addBulmaColumns(lines, gridOpenStart, original, origLineStarts);
+            bulmaGridJobs.push(gridOpenStart);
           } else if (mapped === null) {
             addManual(rel, lineNo, `.${token}`, map.note || `no ${target} equivalent`);
             next.push(token);
@@ -400,6 +422,15 @@ export function migrateDir(
 
       lines[idx] = out;
     });
+
+    // Deferred Bulma step: add `column` to each .grid's direct children now
+    // that no per-line write can overwrite them, and record the touched
+    // lines so the dry-run preview shows every change --apply will write.
+    for (const gridOpenStart of bulmaGridJobs) {
+      const { changed, added } = addBulmaColumns(lines, gridOpenStart, original, origLineStarts);
+      for (const li of changed) changedLines.add(li);
+      replacements += added;
+    }
 
     const hunks: Array<[number, string, string]> = [];
     const afterLines = original.split("\n");
